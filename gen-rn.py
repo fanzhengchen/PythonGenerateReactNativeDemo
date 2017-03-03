@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 
 def genRootIndexFile(projectName):
@@ -16,11 +17,14 @@ def genRootIndexFile(projectName):
 
         newLine = pattern.sub(projectName, line)
 
-        print(newLine)
+        # print(newLine)
 
         targetIndexAndroid.write(newLine)
 
         targetIndexIos.write(newLine)
+
+    targetIndexAndroid.close()
+    targetIndexIos.close()
 
 
 def genSrcIndexFile(projectName, libs):
@@ -51,24 +55,49 @@ def genSrcIndexFile(projectName, libs):
         else:
             targetFile.write(line)
 
+    targetFile.close()
 
-## react-native project name
-projectName = "wx_sample"
 
-## init project
-os.system('react-native init %s' % (projectName))
+def genReactNativeProject(projectName, components):
+    ## react-native project name
+    # projectName = "wx_sample"
 
-## cd prject make directory named src and write default index.js
-os.system("mkdir -p %s/src" % (projectName))
+    ## init project
+    os.system('react-native init %s' % (projectName))
 
-## install custom libs provided by developer
-libs = ['fbemitter', 'fzc-emitter', 'fzc-sku', 'fzc-price']
+    ## cd project make directory named src and write default index.js
+    os.system("mkdir -p %s/src" % (projectName))
 
-components = ['fzc-sku', 'fzc-price']
-list(map(lambda x:
-         os.system("cd %s && npm install --save %s" % (projectName, x)),
-         libs))
-#
-genRootIndexFile(projectName)
+    ## install custom libs provided by developer
+    libs = ['fbemitter', 'fzc-emitter']
 
-genSrcIndexFile(projectName, ['fzc-sku', 'fzc-price'])
+    for ele in components:
+        libs.append(ele)
+
+    print(libs)
+
+    print(components)
+
+    list(map(lambda x:
+             os.system("cd %s && npm install --save %s" % (projectName, x)),
+             libs))
+    genRootIndexFile(projectName)
+
+    genSrcIndexFile(projectName, components)
+
+
+if __name__ == '__main__':
+
+    components = []
+    # for arg in range(sys.argv(1, )):
+    #     print(arg)
+
+    for index in range(1, len(sys.argv)):
+        arg = sys.argv[index]
+
+        components.append(arg)
+
+
+
+    projectName = input("input project name:")
+    genReactNativeProject(projectName, components)
